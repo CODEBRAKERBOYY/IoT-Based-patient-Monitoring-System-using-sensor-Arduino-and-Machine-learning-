@@ -1,98 +1,215 @@
-# 🏥 IoT Based Health Monitoring System using sensor Arduino and machine learning
+<div align="center">
 
-A smart and real-time IoT solution designed to continuously measure and monitor vital human health parameters.  
-This system collects Heart Rate, Blood Pressure, and Body Temperature data using biomedical sensors and transmits it to a cloud server for remote monitoring and anomaly detection.
+# 🏥 IoT-Based Patient Health Monitoring System
+### Real-Time Vital Sign Monitoring + Machine Learning Anomaly Detection
+
+[![Python](https://img.shields.io/badge/Python-3.8+-blue?logo=python)](https://python.org)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-red?logo=streamlit)](https://streamlit.io)
+[![Flask](https://img.shields.io/badge/Flask-API-black?logo=flask)](https://flask.palletsprojects.com)
+[![ML](https://img.shields.io/badge/ML-Isolation%20Forest-green?logo=scikit-learn)](https://scikit-learn.org)
+[![Arduino](https://img.shields.io/badge/Hardware-ESP32%20%2F%20Arduino-teal?logo=arduino)](https://arduino.cc)
+
+*Final Year Project — Registration: 25PSITCS011*
+
+</div>
+
+---
+
+## 📷 Hardware
+
+<p align="center">
+  <img src="hardware_off.JPG" width="45%" alt="Hardware Board Assembled"/>
+  &nbsp;
+  <img src="hardware_on.jpg" width="45%" alt="Hardware Board Running"/>
+</p>
+
+> **Left:** Complete assembled board with all components. **Right:** Device powered ON — LCD showing live readings (HB, SpO₂, Body Temp, Humidity), SIM900A GSM module active with antenna, sensor LEDs lit.
 
 ---
 
 ## 📌 Project Overview
-The **IoT Based Health Monitoring System** enables 24×7 health observation without requiring the patient to be physically present in hospitals.  
-Live sensor readings are uploaded to a cloud database and visualized on a dashboard, allowing doctors/caregivers to monitor patient status remotely.  
-Whenever a health-related abnormality occurs, the system can trigger alerts for early intervention.
+
+A complete end-to-end IoT health monitoring system that:
+
+- 🔴 Collects patient vitals continuously via hardware sensors
+- 📡 Transmits data wirelessly via SIM900A GSM (SMS every 30 seconds)
+- 🌐 Stores data on a Cloud IoT Panel with live charts
+- 🤖 Detects anomalies using **Isolation Forest** ML model
+- 📊 Displays live readings on a **Streamlit dashboard** with alerts
+- 🔔 Triggers **buzzer + LCD** instantly on abnormal readings
 
 ---
 
-## 🎯 Key Features
-- Real-time monitoring of **Heart Rate, Blood Pressure & Body Temperature**
-- Wireless transmission of sensor data via **ESP8266 / ESP32 Wi-Fi module**
-- **Cloud database integration** for storing health records
-- **Interactive dashboard** to display health values graphically
-- **Threshold-based anomaly alerts** for abnormal readings
-- **Low-cost, scalable & portable design**
-- Can be used for **home healthcare, elderly care & emergency assistance**
+## 🌐 Cloud IoT Dashboard
+
+### 📊 Live Data Table
+<p align="center">
+  <img src="dashboard_table.jpeg" width="80%" alt="Live Data Table"/>
+</p>
+
+> Timestamped readings of BPM, SPO2, and Body Temperature — with Export to Excel / PDF / CSV.
 
 ---
 
-## 🏗 System Architecture
-The system integrates:
-- Biomedical sensors → microcontroller → Wi-Fi module → cloud server → web dashboard
+### 🩸 SPO₂ Live Gauge
+<p align="center">
+  <img src="dashboard_spo2.jpeg" width="80%" alt="SPO2 Gauge"/>
+</p>
 
-(Architecture and DFD are based on the project report — Page 17 & 18 :contentReference[oaicite:0]{index=0})
-
----
-
-## 🛠 Tech Stack
-
-| Category | Tools / Components |
-|----------|--------------------|
-| Microcontroller | Arduino Uno / NodeMCU / ESP32 |
-| Sensors | BP Sensor, Heart Rate Sensor (MAX30102), Temperature Sensor (LM35 / DS18B20) |
-| Connectivity | ESP8266 Wi-Fi Module |
-| Backend | Firebase / Thingspeak / MySQL |
-| Frontend | HTML, CSS, JavaScript |
-| IDE | Arduino IDE |
+> Live donut gauge: SPO2 = **94%**, BPM = 48.69, Body Temp = 24.38°C.
 
 ---
 
-## 📡 Data Pipeline
-1. Sensors collect physiological signals  
-2. Microcontroller converts them into digital data  
-3. Data sent to cloud server via Wi-Fi  
-4. Dashboard fetches and visualizes data in charts  
-5. Alert triggered if a value exceeds threshold  
+### 💓 BPM Live Chart
+<p align="center">
+  <img src="dashboard_bpm.jpeg" width="80%" alt="BPM Chart"/>
+</p>
+
+> Real-time BPM column chart — spikes clearly visible reaching 70+ bpm on active readings.
 
 ---
 
-## 📍 Installation & Setup
+### 🌡️ Body Temperature Chart
+<p align="center">
+  <img src="dashboard_temp.jpeg" width="80%" alt="Body Temperature Chart"/>
+</p>
 
-### 🔧 Hardware
-1. Connect BP, Temperature & Heart Rate sensors to Arduino/ESP pins
-2. Configure Wi-Fi credentials in Arduino code
-3. Upload firmware via Arduino IDE
-
-### 💻 Software
-1. Clone this repository
-2. Configure Firebase / Thingspeak / MySQL credentials
-3. Run the web dashboard
-4. Power the device → live values appear on screen
+> Live line chart showing body temperature trend — rising from 24.31°C to 24.43°C captured from sensor.
 
 ---
 
-## 📊 Dashboard Preview
-(Add screenshots here after deployment)
+## 🏗️ System Architecture
+
+```
+┌─────────────────────────────────────────────┐
+│              HARDWARE LAYER                 │
+│  MAX30100 → BPM + SpO₂                      │
+│  DHT11    → Body Temp + Ambient + Humidity  │
+│  NodeMCU ESP32 (reads + transmits)          │
+│       │                  │                  │
+│  USB Serial         SIM900A GSM             │
+└───────┼──────────────────┼──────────────────┘
+        │                  │
+        ▼                  ▼
+  reader.py          Cloud IoT Panel
+  server.py          (Live Charts + Export CSV)
+  iot_data.csv
+        │
+        ▼
+  ML Pipeline
+  (Clean → Scale → Isolation Forest)
+  anomaly_model.pkl + scaler.pkl
+        │
+        ▼
+  Streamlit Dashboard (app.py)
+  Normal ✅  /  Abnormal 🚨
+```
 
 ---
 
-## 🚨 Anomaly Detection
-Alerts are generated when:
-- Heart Rate > 120 BPM or < 60 BPM  
-- Body Temperature > 38°C or < 36°C  
-- BP values beyond normal threshold  
+## 📦 Hardware Components
 
-(alert logic based on system description in the PDF — Page 13 :contentReference[oaicite:1]{index=1})
-
-
-
----
-
-## 📌 Future Enhancements
-- Integration with wearable IoT devices
-- AI-based prediction of health risks
-- Mobile app support
-- ECG & SpO2 sensor compatibility
+| Component | Role |
+|---|---|
+| NodeMCU ESP32 | Main microcontroller |
+| MAX30100 | Heart Rate + SpO₂ |
+| DHT11 | Temperature + Humidity |
+| SIM900A GSM | Wireless SMS + Cloud data |
+| 16×2 LCD (I2C) | On-device live display |
+| 6V–12V Buzzer | Local alarm on abnormal reading |
+| Perf Board + DC Supply | Assembly + power |
 
 ---
 
-## 🏁 Conclusion
-This project presents a low-cost yet efficient IoT-based system for real-time health monitoring, scalable for both home and clinical applications. It helps reduce hospital burden while improving accessibility to healthcare.
+## 📊 Sensor Parameters
 
+| Field | Parameter | Unit | Healthy Range |
+|---|---|---|---|
+| 884 | Heart Rate (BPM) | beats/min | 60–100 |
+| 885 | SpO₂ | % | 95–100 |
+| 886 | Body Temperature | °C | 36.1–37.2 |
+| 887 | Ambient Temperature | °C | — |
+| 888 | Humidity | % | — |
+
+---
+
+## 🤖 Machine Learning
+
+| Property | Value |
+|---|---|
+| Algorithm | Isolation Forest (Unsupervised) |
+| Library | scikit-learn |
+| Contamination | 10% |
+| Train / Test | 93 / 24 samples |
+| Dataset | 118 real readings (May 2026) |
+| Result | ✅ 22 Normal, 🚨 2 Abnormal |
+
+### Pipeline
+```
+Raw CSV → Parse JSON → Clean zeros (median fill)
+→ IQR clipping → StandardScaler
+→ Isolation Forest → Normal / Abnormal
+→ Save: anomaly_model.pkl + scaler.pkl
+```
+
+---
+
+## 🗂️ Project Structure
+
+```
+IoT-Based-patient-Monitoring-System/
+├── app.py                    ← Streamlit dashboard
+├── server.py                 ← Flask API
+├── reader.py                 ← Arduino serial reader
+├── send_test_data.py         ← Test without hardware
+├── iot_project.ipynb         ← ML training notebook
+├── anomaly_model.pkl         ← Trained model
+├── scaler.pkl                ← Fitted scaler
+├── iot_data.csv              ← 118 sensor readings
+├── hardware_off.JPG          ← Hardware photo
+├── hardware_on.jpg           ← Hardware running
+├── dashboard_table.jpeg      ← Data table screenshot
+├── dashboard_spo2.jpeg       ← SPO2 gauge screenshot
+├── dashboard_bpm.jpeg        ← BPM chart screenshot
+├── dashboard_temp.jpeg       ← Temperature chart
+└── README.md
+```
+
+---
+
+## 🚀 How to Run
+
+```bash
+# Install dependencies
+pip install streamlit flask pandas numpy scikit-learn matplotlib seaborn joblib pyserial requests
+
+# With hardware — start server
+python server.py
+
+# Without hardware — send test data
+python send_test_data.py
+
+# Launch dashboard
+streamlit run app.py
+```
+
+---
+
+## 🔮 Future Scope
+
+- Mobile app for remote alerts
+- ECG sensor integration
+- Auto SMS via Twilio on anomaly
+- Multi-patient dashboard
+- LSTM for time-series prediction
+- AWS IoT / Google Cloud deployment
+
+---
+
+<div align="center">
+
+**⭐ Star this repo if you found it helpful!**
+
+*Built with ❤️ using IoT + Python + Machine Learning*
+
+</div>
